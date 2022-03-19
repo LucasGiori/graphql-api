@@ -2,13 +2,15 @@ version: '3.9'
 services:
   php-fpm-graphql:
     build: .
-    image: "php-fpm-graphql"
+    image: "php-fpm-graphql-image"
     container_name: graphql-api
     volumes:
       - ./:/var/www/html
       - ./.config/docker/php/jit.ini:/usr/local/etc/php/conf.d/jit.ini
       - ./.config/docker/php/timezone.ini:/usr/local/etc/php/conf.d/timezone.ini
       - ./.config/docker/php/xdebug.ini:/usr/local/etc/php/conf.d/xdebug.ini
+      - ./.config/docker/php/header.ini:/usr/local/etc/php/conf.d/header.ini
+
   nginx:
     image: nginx:1.19.6
     container_name: nginx
@@ -18,5 +20,6 @@ services:
     volumes:
       - .:/var/www/html/
       - ./.config/docker/nginx/conf.d/default.conf:/etc/nginx/conf.d/default.conf
+      - ./.config/docker/nginx/nginx.conf:/etc/nginx/nginx.conf
     depends_on:
       - php-fpm-graphql
