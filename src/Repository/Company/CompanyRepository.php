@@ -17,4 +17,15 @@ class CompanyRepository
             ["id" => Uuid::uuid4(), "fantasyName" => "Fiscontech"]
         ];
     }
+
+    /**
+     * @param string $fantasyName
+     * @return array[]
+     */
+    public function add( string $fantasyName): array
+    {
+        return [
+            ["id" => Uuid::uuid4(), "fantasyName" => $fantasyName],
+        ];
+    }
 }

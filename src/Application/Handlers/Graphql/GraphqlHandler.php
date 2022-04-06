@@ -3,9 +3,9 @@
 namespace App\Application\Handlers\Graphql;
 
 use App\DomainModel\QueryModel\Base\GraphqlField;
+use App\DomainModel\QueryModel\Base\GraphqlMutationAggregator;
 use App\DomainModel\QueryModel\Base\GraphqlQueryAggregator;
 use App\DomainModel\QueryModel\Base\GraphqlSchema;
-use App\DomainModel\QueryModel\Company\QueryCompany;
 use App\DomainModel\QueryModel\Company\RootFacade;
 use App\Repository\Company\CompanyRepository;
 use Fig\Http\Message\StatusCodeInterface;
@@ -28,15 +28,17 @@ class GraphqlHandler implements RequestHandlerInterface
         $query = json_decode($request->getBody()->getContents());
 
         $queryAggregator = new GraphqlQueryAggregator();
-        RootFacade::configure(new GraphqlQueryAggregator());
+        RootFacade::configure($queryAggregator);
+        $mutationAggregator = new GraphqlMutationAggregator();
+        RootFacade::configure($mutationAggregator);
 
-        $schema = (new GraphqlSchema([$queryAggregator]))->build();
+        $schema = (new GraphqlSchema([$queryAggregator, $mutationAggregator]))->build();
         $schema->assertValid();
 
         $result = GraphQL::executeQuery(
             schema: $schema,
             source: $query->query,
-            variableValues: $query->variable ?? null,
+            variableValues: !empty($query->variables) ? (array)$query->variables : null,
             operationName: $query->operationName
         );
 

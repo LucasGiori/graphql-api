@@ -12,12 +12,4 @@ trait GraphqlType
             $this->fields->addField(field: $field);
         }
     }
-
-    public function build(): ObjectType
-    {
-        return new ObjectType([
-            "name" => $this->name,
-            "fields" => $this->fields->toArray()
-        ]);
-    }
 }

@@ -2,13 +2,20 @@
 
 namespace App\DomainModel\QueryModel\Base;
 
+use GraphQL\Type\Definition\ObjectType;
+
 class GraphqlAggregator
 {
     use GraphqlType;
 
     /**
+     * @var array $objectTypeArray
+     */
+    private array $objectTypeArray = [];
+
+    /**
      * @param string $name
-     * @param GraphqlFieldsCollection|null $fields
+     * @param GraphqlFieldsCollection $fields
      */
     public function __construct(
         protected string $name,
@@ -50,5 +57,19 @@ class GraphqlAggregator
         }
 
         return $fields;
+    }
+
+    public function build(): ObjectType
+    {
+        $exists = array_key_exists(key: $this->name, array: $this->objectTypeArray);
+
+        if(empty($this->objectTypeArray) || !$exists) {
+            $this->objectTypeArray[$this->name] =  new ObjectType([
+                "name" => $this->name,
+                "fields" => $this->fields->toArray()
+            ]);
+        }
+
+        return $this->objectTypeArray[$this->name];
     }
 }

@@ -18,8 +18,18 @@ class GraphqlSchema
      */
     public function build()
     {
-        return new Schema(
-            config: ["query" => $this->arrayObjectTypes[0]->build()]
-        );
+        $config = [];
+
+        foreach($this->arrayObjectTypes as $objectType) {
+            if($objectType instanceof GraphqlQueryAggregator) {
+                $config["query"] = $objectType->build();
+            }
+
+            if($objectType instanceof GraphqlMutationAggregator) {
+                $config["mutation"] = $objectType->build();
+            }
+        }
+
+        return new Schema(config: $config);
     }
 }

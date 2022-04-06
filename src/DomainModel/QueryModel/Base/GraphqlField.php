@@ -3,6 +3,7 @@
 namespace App\DomainModel\QueryModel\Base;
 
 use Closure;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
 class GraphqlField
@@ -15,6 +16,7 @@ class GraphqlField
     public function __construct(
         private string $field,
         private Type $type,
+        private GraphqlArgsCollection|null $args = null,
         private Closure|null $callable = null
     ) {}
 
@@ -33,6 +35,15 @@ class GraphqlField
     {
         return $this->type;
     }
+
+    /**
+     * @return GraphqlArgsCollection|null
+     */
+    public function getArgs(): GraphqlArgsCollection|null
+    {
+        return $this->args;
+    }
+
 
     /**
      * @return Closure|null

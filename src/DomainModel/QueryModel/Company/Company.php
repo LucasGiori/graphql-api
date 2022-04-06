@@ -6,15 +6,30 @@ use App\DomainModel\QueryModel\Base\GraphqlAggregator;
 use App\DomainModel\QueryModel\Base\GraphqlField;
 use App\DomainModel\QueryModel\Base\GraphqlFieldsCollection;
 use App\DomainModel\QueryModel\Base\GraphqlTypeInterface;
+use GraphQL\Type\Definition\ObjectType;
 use GraphQL\Type\Definition\Type;
 
-final class QueryCompany extends GraphqlAggregator implements GraphqlTypeInterface
+final class Company extends GraphqlAggregator implements GraphqlTypeInterface
 {
-    public function __construct()
+    private static Company $instance;
+
+    private function __construct()
     {
         parent::__construct(name: "company", fields: $this->generateFields());
     }
 
+    private function __clone() {}
+
+    public function __wakeup() {}
+
+    public static function getInstance(): self
+    {
+        if(empty(self::$instance)) {
+            self::$instance = new self();
+        }
+
+        return self::$instance;
+    }
 
     /**
      * @return GraphqlFieldsCollection
