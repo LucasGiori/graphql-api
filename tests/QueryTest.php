@@ -2,29 +2,35 @@
 
 namespace App;
 
-use Guzzle\Http\Client;
+use GuzzleHttp\Client;
+use GuzzleHttp\RequestOptions;
 use PHPUnit\Framework\TestCase;
 
 class QueryTest extends TestCase
 {
     public function testQueryResult()
     {
-        $client = new Client(baseUrl: 'http://localhost:8000');
-        $result = $client->post(uri: "", options : [
-            "form_params" => [
-                "data"=> [
-                    "query" => [
-                        "
-                            books {
-                                hello
+        $client = new Client();
+        $result = $client->post(
+            uri: "http://nginx",
+            options :  [
+                RequestOptions::HEADERS => [
+                    "Content-Type" => "application/json",
+                    "Accept" => "application/json"
+                ],
+                RequestOptions::JSON =>  [
+                    "query" => '
+                        query GetCompanies {
+                            companies {
+                                fantasyName
                             }
-                        "
-                    ]
+                        }
+                    ',
+                    "operationName" => "GetCompanies"
                 ]
             ]
-        ]);
-
-        var_dump($result->getBody());
+        );
+        $this->assertEquals(expected: 200, actual: $result->getStatusCode());
         $this->assertNotNull($result->getBody());
     }
 }
