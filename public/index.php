@@ -2,33 +2,50 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use GraphQL\Type\Schema;
-use GraphQL\Type\Definition\Type;
-use GraphQL\Type\Definition\ObjectType;
-use GraphQL\Server\StandardServer;
-use GraphQL\Server\ServerConfig;
+use App\Application\Settings\SettingsInterface;
+use DI\ContainerBuilder;
+use Slim\Factory\AppFactory;
+use Slim\Factory\ServerRequestCreatorFactory;
+use Slim\ResponseEmitter;
 
-$queryType = new ObjectType([
-    'name' => 'books',
-    'fields' => [
-        'hello' => [
-            'type' => Type::string(),
-            'resolve' => fn () => 'Hello World!',
-        ]
-    ]
-]);
+$containerBuilder = new ContainerBuilder();
 
+$settings = require __DIR__ . '/../app/settings.php';
+$settings($containerBuilder);
 
-$schema = new Schema([
-    'query' => $queryType
-]);
+$dependencies = require __DIR__ . '/../app/dependencies.php';
+$dependencies($containerBuilder);
 
-$schema->assertValid();
+// Build PHP-DI Container instance
+$container = $containerBuilder->build();
 
-$config = ServerConfig::create()->setSchema($schema);
+// Instantiate the app
+AppFactory::setContainer($container);
+$app = AppFactory::create();
+$callableResolver = $app->getCallableResolver();
 
-$server = new StandardServer($config);
+// Register middleware
+$middleware = require __DIR__ . '/../app/middleware.php';
+$middleware($app);
 
-$result = $server->executeRequest();
+// Register routes
+$routes = require __DIR__ . '/../app/routes.php';
+$routes($app);
 
-echo json_encode($result->toArray());
+/** @var SettingsInterface $settings */
+$settings = $container->get(name: SettingsInterface::class);
+
+// Create Request object from globals
+$serverRequestCreator = ServerRequestCreatorFactory::create();
+$request = $serverRequestCreator->createServerRequestFromGlobals();
+
+// Add Routing Middleware
+$app->addRoutingMiddleware();
+
+// Add Body Parsing Middleware
+$app->addBodyParsingMiddleware();
+
+// Run App & Emit Response
+$response = $app->handle(request: $request);
+$responseEmitter = new ResponseEmitter();
+$responseEmitter->emit(response: $response);
