@@ -50,9 +50,9 @@ class CompanyQueryTest extends TestCase
                 ],
                 RequestOptions::JSON =>  [
                     "query" => '
-                        mutation AddCompany($fantasyName: String) {
+                        mutation AddCompany($fantasyName: String!) {
                             addCompany(fantasyName: $fantasyName) {
-                                id
+                                fantasyName
                             }
                         }
                     ',
@@ -64,6 +64,10 @@ class CompanyQueryTest extends TestCase
             ]
         );
         $this->assertEquals(expected: 200, actual: $result->getStatusCode());
-        var_dump($result->getBody()->getContents());
+        $this->assertEquals(
+            expected: '{"data":{"addCompany":{"fantasyName":"Lucas Giori TECH"}}}',
+            actual: $result->getBody()->getContents()
+
+        );
     }
 }
