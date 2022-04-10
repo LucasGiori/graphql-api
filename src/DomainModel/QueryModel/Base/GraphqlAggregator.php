@@ -49,6 +49,10 @@ class GraphqlAggregator
         foreach ($this->getFields() as $graphqlField) {
             $config = ["type" => $graphqlField->getType()];
 
+            if(!is_null($graphqlField->getArgs())) {
+                $config["args"] = $graphqlField->getArgs()->toArray();
+            }
+
             if(!is_null($graphqlField->getCallable())) {
                 $config["resolve"] = $graphqlField->getCallable();
             }

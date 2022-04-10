@@ -24,8 +24,6 @@ class CompanyRepository
      */
     public function add( string $fantasyName): array
     {
-        return [
-            ["id" => Uuid::uuid4(), "fantasyName" => $fantasyName],
-        ];
+        return ["id" => Uuid::uuid4(), "fantasyName" => $fantasyName];
     }
 }

@@ -28,12 +28,14 @@ class GraphqlHandler implements RequestHandlerInterface
         $query = json_decode($request->getBody()->getContents());
 
         $queryAggregator = new GraphqlQueryAggregator();
-        RootFacade::configure($queryAggregator);
         $mutationAggregator = new GraphqlMutationAggregator();
+
+        RootFacade::configure($queryAggregator);
         RootFacade::configure($mutationAggregator);
 
         $schema = (new GraphqlSchema([$queryAggregator, $mutationAggregator]))->build();
         $schema->assertValid();
+
 
         $result = GraphQL::executeQuery(
             schema: $schema,
